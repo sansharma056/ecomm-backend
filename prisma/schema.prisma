@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int          @id @default(autoincrement())
+  passwordHash String
+  details      UserDetails?
+  cart         Cart?
+  order        Order[]
+  Address      Address[]
+  Reviews      Review[]
+}
+
+model UserDetails {
+  user                User                @relation(fields: [userID], references: [id])
+  userID              Int                 @unique
+  name                String
+  firstName           String
+  lastName            String
+  dateOfBirth         DateTime
+  dateOfEntrollment   DateTime
+  cardId              String
+  ppoNumber           String?
+  dateOfRetirement    DateTime?
+  panNumber           String
+  email               String
+  mobileNumber        String
+  token               String
+  oraganization       Organization
+  employmentStatus    EmploymentStatus
+  entitlementCategory EntitlementCategory
+}
+
+model Address {
+  id       Int     @id @default(autoincrement())
+  address1 String
+  address2 String?
+  address3 String?
+  pinCode  String
+  city     String
+  state    String
+  user     User    @relation(fields: [userId], references: [id])
+  userId   Int
+}
+
+model Cart {
+  id     Int        @id @default(autoincrement())
+  items  CartItem[]
+  user   User       @relation(fields: [userId], references: [id])
+  userId Int        @unique
+}
+
+model CartItem {
+  id        Int     @id @default(autoincrement())
+  quantity  Int
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  cartId    Int
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int     @unique
+}
+
+model Vendor {
+  id       Int       @id @default(autoincrement())
+  name     String
+  products Product[]
+}
+
+model Product {
+  id         Int             @id @default(autoincrement())
+  details    ProductDetails?
+  cartItems  CartItem[]
+  orderLines OrderLine[]
+  category   Category[]      @relation(references: [id])
+  vendor     Vendor          @relation(fields: [vendorId], references: [id])
+  vendorId   Int             @unique
+}
+
+model ProductDetails {
+  price             Float
+  discount          Int
+  availableQuantity Int
+  purchaseLimit     Int
+  description       String
+  imageURL          String
+  product           Product @relation(fields: [productId], references: [id])
+  productId         Int     @unique
+}
+
+model Review {
+  id       Int    @id @default(autoincrement())
+  content  String
+  rating   Int
+  author   User   @relation(fields: [authorId], references: [id])
+  authorId Int    @unique
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  products    Product[] @relation(references: [id])
+}
+
+model Order {
+  id          Int         @id @default(autoincrement())
+  orderLines  OrderLine[]
+  user        User        @relation(fields: [userId], references: [id])
+  userId      Int         @unique
+  orderStatus OrderStatus
+}
+
+model OrderLine {
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int     @unique
+  quantity  Int
+  price     Float
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   Int     @unique
+}
+
+enum Organization {
+  ARMY
+  AIR_FORCE
+  NAVY
+  ASSAM_RIFLES
+  COAST_GUARD
+  GREF
+  OTHER_UNIFORMED_ORGS
+  DEFENCE_CIVILIANS
+}
+
+enum EmploymentStatus {
+  SERVICEMEN
+  ESM
+  SERVING_DEFENCE_CIVILIANS
+  ON_DEPUTATION
+}
+
+enum EntitlementCategory {
+  OFFICERS
+  JCO
+  OR
+}
+
+enum OrderStatus {
+  PENDING
+  FULFILLED
+}
