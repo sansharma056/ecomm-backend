@@ -1,0 +1,160 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int          @id @default(autoincrement())
+  name         String       @unique
+  passwordHash String
+  details      UserDetails?
+  cart         Cart?
+  reviews      Review[]
+  Order        Order[]
+}
+
+model UserDetails {
+  id                  Int                 @id @default(autoincrement())
+  user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId              Int                 @unique
+  firstName           String
+  lastName            String
+  dateOfBirth         DateTime
+  dateOfEnrollment    DateTime
+  ppoNumber           String?
+  dateOfRetirement    DateTime?
+  panNumber           String
+  email               String
+  mobileNumber        String
+  token               String
+  organization        Organization
+  employmentStatus    EmploymentStatus
+  entitlementCategory EntitlementCategory
+  address             Address?
+}
+
+model Address {
+  id            Int         @id @default(autoincrement())
+  address1      String
+  address2      String?
+  address3      String?
+  pinCode       String
+  city          String
+  state         String
+  userDetails   UserDetails @relation(fields: [userDetailsId], references: [id], onDelete: Cascade)
+  userDetailsId Int         @unique
+}
+
+model Cart {
+  id     Int        @id @default(autoincrement())
+  items  CartItem[]
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int        @unique
+}
+
+model CartItem {
+  id        Int     @id @default(autoincrement())
+  quantity  Int
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  cartId    Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int     @unique
+}
+
+model Vendor {
+  id       Int       @id @default(autoincrement())
+  name     String
+  products Product[]
+}
+
+model Product {
+  id         Int             @id @default(autoincrement())
+  details    ProductDetails?
+  cartItems  CartItem[]
+  orderLines OrderLine[]
+  categories Category[]      @relation(references: [id])
+  vendor     Vendor          @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  vendorId   Int
+  reviews    Review[]
+
+}
+
+model ProductDetails {
+  id                Int     @id @default(autoincrement())
+  price             Float
+  discount          Int?    @default(0)
+  availableQuantity Int
+  purchaseLimit     Int
+  name              String
+  description       String
+  imageURL          String
+  product           Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId         Int     @unique
+}
+
+model Review {
+  id        Int     @id @default(autoincrement())
+  content   String
+  rating    Int
+  author    User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  products    Product[] @relation(references: [id])
+}
+
+model Order {
+  id          Int         @id @default(autoincrement())
+  orderLines  OrderLine[]
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int         @unique
+  orderStatus OrderStatus
+}
+
+model OrderLine {
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int     @unique
+  quantity  Int
+  price     Float
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   Int
+}
+
+enum Organization {
+  ARMY
+  AIR_FORCE
+  NAVY
+  ASSAM_RIFLES
+  COAST_GUARD
+  GREF
+  OTHER_UNIFORMED_ORGS
+  DEFENCE_CIVILIANS
+}
+
+enum EmploymentStatus {
+  SERVICEMEN
+  ESM
+  SERVING_DEFENCE_CIVILIANS
+  ON_DEPUTATION
+}
+
+enum EntitlementCategory {
+  OFFICERS
+  JCO
+  OR
+}
+
+enum OrderStatus {
+  PENDING
+  FULFILLED
+}
