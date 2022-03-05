@@ -13,6 +13,7 @@ CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'FULFILLED');
 -- CreateTable
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
     "passwordHash" TEXT NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
@@ -20,22 +21,23 @@ CREATE TABLE "User" (
 
 -- CreateTable
 CREATE TABLE "UserDetails" (
-    "userID" INTEGER NOT NULL,
-    "name" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
+    "userId" INTEGER NOT NULL,
     "firstName" TEXT NOT NULL,
     "lastName" TEXT NOT NULL,
     "dateOfBirth" TIMESTAMP(3) NOT NULL,
-    "dateOfEntrollment" TIMESTAMP(3) NOT NULL,
-    "cardId" TEXT NOT NULL,
+    "dateOfEnrollment" TIMESTAMP(3) NOT NULL,
     "ppoNumber" TEXT,
     "dateOfRetirement" TIMESTAMP(3),
     "panNumber" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "mobileNumber" TEXT NOT NULL,
     "token" TEXT NOT NULL,
-    "oraganization" "Organization" NOT NULL,
+    "organization" "Organization" NOT NULL,
     "employmentStatus" "EmploymentStatus" NOT NULL,
-    "entitlementCategory" "EntitlementCategory" NOT NULL
+    "entitlementCategory" "EntitlementCategory" NOT NULL,
+
+    CONSTRAINT "UserDetails_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -47,7 +49,7 @@ CREATE TABLE "Address" (
     "pinCode" TEXT NOT NULL,
     "city" TEXT NOT NULL,
     "state" TEXT NOT NULL,
-    "userId" INTEGER NOT NULL,
+    "userDetailsId" INTEGER NOT NULL,
 
     CONSTRAINT "Address_pkey" PRIMARY KEY ("id")
 );
@@ -88,13 +90,16 @@ CREATE TABLE "Product" (
 
 -- CreateTable
 CREATE TABLE "ProductDetails" (
+    "id" SERIAL NOT NULL,
     "price" DOUBLE PRECISION NOT NULL,
-    "discount" INTEGER NOT NULL,
+    "discount" INTEGER DEFAULT 0,
     "availableQuantity" INTEGER NOT NULL,
     "purchaseLimit" INTEGER NOT NULL,
     "description" TEXT NOT NULL,
     "imageURL" TEXT NOT NULL,
-    "productId" INTEGER NOT NULL
+    "productId" INTEGER NOT NULL,
+
+    CONSTRAINT "ProductDetails_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -103,6 +108,7 @@ CREATE TABLE "Review" (
     "content" TEXT NOT NULL,
     "rating" INTEGER NOT NULL,
     "authorId" INTEGER NOT NULL,
+    "productId" INTEGER NOT NULL,
 
     CONSTRAINT "Review_pkey" PRIMARY KEY ("id")
 );
@@ -140,7 +146,13 @@ CREATE TABLE "_CategoryToProduct" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "UserDetails_userID_key" ON "UserDetails"("userID");
+CREATE UNIQUE INDEX "User_name_key" ON "User"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UserDetails_userId_key" ON "UserDetails"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Address_userDetailsId_key" ON "Address"("userDetailsId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Cart_userId_key" ON "Cart"("userId");
@@ -173,37 +185,40 @@ CREATE UNIQUE INDEX "_CategoryToProduct_AB_unique" ON "_CategoryToProduct"("A", 
 CREATE INDEX "_CategoryToProduct_B_index" ON "_CategoryToProduct"("B");
 
 -- AddForeignKey
-ALTER TABLE "UserDetails" ADD CONSTRAINT "UserDetails_userID_fkey" FOREIGN KEY ("userID") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "UserDetails" ADD CONSTRAINT "UserDetails_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Address" ADD CONSTRAINT "Address_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Address" ADD CONSTRAINT "Address_userDetailsId_fkey" FOREIGN KEY ("userDetailsId") REFERENCES "UserDetails"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Cart" ADD CONSTRAINT "Cart_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Cart" ADD CONSTRAINT "Cart_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "CartItem" ADD CONSTRAINT "CartItem_cartId_fkey" FOREIGN KEY ("cartId") REFERENCES "Cart"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "CartItem" ADD CONSTRAINT "CartItem_cartId_fkey" FOREIGN KEY ("cartId") REFERENCES "Cart"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "CartItem" ADD CONSTRAINT "CartItem_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "CartItem" ADD CONSTRAINT "CartItem_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Product" ADD CONSTRAINT "Product_vendorId_fkey" FOREIGN KEY ("vendorId") REFERENCES "Vendor"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Product" ADD CONSTRAINT "Product_vendorId_fkey" FOREIGN KEY ("vendorId") REFERENCES "Vendor"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ProductDetails" ADD CONSTRAINT "ProductDetails_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ProductDetails" ADD CONSTRAINT "ProductDetails_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Review" ADD CONSTRAINT "Review_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Review" ADD CONSTRAINT "Review_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Order" ADD CONSTRAINT "Order_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Review" ADD CONSTRAINT "Review_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Order" ADD CONSTRAINT "Order_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "OrderLine" ADD CONSTRAINT "OrderLine_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "OrderLine" ADD CONSTRAINT "OrderLine_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "OrderLine" ADD CONSTRAINT "OrderLine_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_CategoryToProduct" ADD FOREIGN KEY ("A") REFERENCES "Category"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -9,59 +9,59 @@ datasource db {
 
 model User {
   id           Int          @id @default(autoincrement())
+  name         String       @unique
   passwordHash String
   details      UserDetails?
   cart         Cart?
-  order        Order[]
-  Address      Address[]
-  Reviews      Review[]
+  reviews      Review[]
+  Order        Order[]
 }
 
 model UserDetails {
-  user                User                @relation(fields: [userID], references: [id])
-  userID              Int                 @unique
-  name                String
+  id                  Int                 @id @default(autoincrement())
+  user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId              Int                 @unique
   firstName           String
   lastName            String
   dateOfBirth         DateTime
-  dateOfEntrollment   DateTime
-  cardId              String
+  dateOfEnrollment    DateTime
   ppoNumber           String?
   dateOfRetirement    DateTime?
   panNumber           String
   email               String
   mobileNumber        String
   token               String
-  oraganization       Organization
+  organization        Organization
   employmentStatus    EmploymentStatus
   entitlementCategory EntitlementCategory
+  address             Address?
 }
 
 model Address {
-  id       Int     @id @default(autoincrement())
-  address1 String
-  address2 String?
-  address3 String?
-  pinCode  String
-  city     String
-  state    String
-  user     User    @relation(fields: [userId], references: [id])
-  userId   Int
+  id            Int         @id @default(autoincrement())
+  address1      String
+  address2      String?
+  address3      String?
+  pinCode       String
+  city          String
+  state         String
+  userDetails   UserDetails @relation(fields: [userDetailsId], references: [id], onDelete: Cascade)
+  userDetailsId Int         @unique
 }
 
 model Cart {
   id     Int        @id @default(autoincrement())
   items  CartItem[]
-  user   User       @relation(fields: [userId], references: [id])
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int        @unique
 }
 
 model CartItem {
   id        Int     @id @default(autoincrement())
   quantity  Int
-  cart      Cart    @relation(fields: [cartId], references: [id])
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
   cartId    Int
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId Int     @unique
 }
 
@@ -76,28 +76,34 @@ model Product {
   details    ProductDetails?
   cartItems  CartItem[]
   orderLines OrderLine[]
-  category   Category[]      @relation(references: [id])
-  vendor     Vendor          @relation(fields: [vendorId], references: [id])
-  vendorId   Int             @unique
+  categories Category[]      @relation(references: [id])
+  vendor     Vendor          @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  vendorId   Int
+  reviews    Review[]
+
 }
 
 model ProductDetails {
+  id                Int     @id @default(autoincrement())
   price             Float
-  discount          Int
+  discount          Int?    @default(0)
   availableQuantity Int
   purchaseLimit     Int
+  name              String
   description       String
   imageURL          String
-  product           Product @relation(fields: [productId], references: [id])
+  product           Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId         Int     @unique
 }
 
 model Review {
-  id       Int    @id @default(autoincrement())
-  content  String
-  rating   Int
-  author   User   @relation(fields: [authorId], references: [id])
-  authorId Int    @unique
+  id        Int     @id @default(autoincrement())
+  content   String
+  rating    Int
+  author    User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int
 }
 
 model Category {
@@ -110,7 +116,7 @@ model Category {
 model Order {
   id          Int         @id @default(autoincrement())
   orderLines  OrderLine[]
-  user        User        @relation(fields: [userId], references: [id])
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int         @unique
   orderStatus OrderStatus
 }
@@ -120,8 +126,8 @@ model OrderLine {
   productId Int     @unique
   quantity  Int
   price     Float
-  order     Order   @relation(fields: [orderId], references: [id])
-  orderId   Int     @unique
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   Int
 }
 
 enum Organization {
