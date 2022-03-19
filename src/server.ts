@@ -26,9 +26,10 @@ app.use("/review", reviewRouter);
 app.use("/cart", cartRouter);
 
 export const start = () => {
+  const PORT = process.env.PORT ?? 3000;
   try {
-    app.listen(3000, () => {
-      console.log(`API on localhost:3000`);
+    app.listen(PORT, () => {
+      console.log(`API on localhost:${PORT}`);
     });
   } catch (e) {
     console.error(e);
