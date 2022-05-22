@@ -48,6 +48,8 @@ export const createCartItem = async (req: Request, res: Response) => {
 
     return res.status(200).json(cartItem);
   } catch (e: any) {
+    console.error(e);
+
     if (e.code === "P2002") {
       return res
         .status(400)
