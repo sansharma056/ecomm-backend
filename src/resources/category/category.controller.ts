@@ -26,6 +26,13 @@ export const getById = async (req: Request, res: Response) => {
     where: {
       id: +params.id,
     },
+    include: {
+      products: {
+        select: {
+          details: true,
+        },
+      },
+    },
   });
   prisma.$disconnect();
 
