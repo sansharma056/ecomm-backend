@@ -53,9 +53,14 @@ export const create = async (req: Request, res: Response) => {
       },
     });
 
-    res.status(200).json(category);
+    return res.status(200).json(category);
   } catch (e: any) {
-    res.status(400).json({ message: e.meta.cause });
+    console.error(e);
+    if (e.meta) {
+      return res.status(400).json({ message: e.meta.cause });
+    } else {
+      return res.status(400).json({ message: e });
+    }
   } finally {
     prisma.$disconnect();
   }
