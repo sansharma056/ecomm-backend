@@ -6,6 +6,27 @@ interface ProductData extends Product {
   categories: { id: number }[];
 }
 
+export const deleteById = async (req: Request, res: Response) => {
+  const prisma = new PrismaClient();
+  const product: Product = req.body;
+
+  try {
+    await prisma.product.delete({
+      where: {
+        id: product.id,
+      },
+    });
+
+    return res.status(200).json({ message: "Product Deleted." });
+  } catch (error) {
+    console.error(error);
+    return res.status(400).json({
+      message:
+        "Product with that id wasn't found. Please recheck the product id and make sure it is correct.",
+    });
+  }
+};
+
 export const create = async (req: Request, res: Response) => {
   const prisma = new PrismaClient();
   const product: ProductData = req.body;
