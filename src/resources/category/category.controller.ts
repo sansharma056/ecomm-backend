@@ -4,7 +4,15 @@ import { Request, Response } from "express";
 export const getAll = async (req: Request, res: Response) => {
   const prisma = new PrismaClient();
 
-  const categories = await prisma.category.findMany();
+  const categories = await prisma.category.findMany({
+    include: {
+      _count: {
+        select: {
+          products: true,
+        },
+      },
+    },
+  });
   prisma.$disconnect;
 
   res.status(200).json({ categories });
@@ -40,6 +48,8 @@ export const create = async (req: Request, res: Response) => {
       data: {
         name: categoryData.name,
         description: categoryData.description,
+        imgURL: categoryData.imgURL,
+        slug: categoryData.slug,
       },
     });
 
