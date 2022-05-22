@@ -1,16 +1,12 @@
 import { config } from "./config";
-import { Address, PrismaClient, User, UserDetails } from "@prisma/client";
+import { PrismaClient, User, UserDetails } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
-interface UserDetailsData extends UserDetails {
-  address: Address;
-}
-
 interface UserData extends Omit<User, "passwordHash"> {
   password: string;
-  details: UserDetailsData;
+  details: UserDetails;
 }
 
 interface Credentials {
