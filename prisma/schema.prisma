@@ -30,7 +30,6 @@ model UserDetails {
   panNumber           String
   email               String
   mobileNumber        String
-  token               String
   organization        Organization
   employmentStatus    EmploymentStatus
   entitlementCategory EntitlementCategory
