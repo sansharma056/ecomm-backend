@@ -45,11 +45,6 @@ export const signup = async (req: Request, res: Response) => {
         details: {
           create: {
             ...userData.details,
-            address: {
-              create: {
-                ...userData.details.address,
-              },
-            },
           },
         },
         cart: {
