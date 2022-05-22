@@ -58,10 +58,10 @@ export const signup = async (req: Request, res: Response) => {
       },
     });
 
-    res.status(200).json({ message: "User created." });
+    return res.status(200).json({ message: "User created." });
   } catch (error) {
     console.error(error);
-    res.status(400).json(error);
+    return res.status(400).json(error);
   } finally {
     prisma.$disconnect();
   }
