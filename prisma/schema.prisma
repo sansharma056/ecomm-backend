@@ -35,16 +35,6 @@ model UserDetails {
   entitlementCategory EntitlementCategory
 }
 
-model Address {
-  id            Int         @id @default(autoincrement())
-  address1      String
-  address2      String?
-  address3      String?
-  pinCode       String
-  city          String
-  state         String
-}
-
 model Cart {
   id     Int        @id @default(autoincrement())
   items  CartItem[]
