@@ -110,6 +110,8 @@ model Category {
   id          Int       @id @default(autoincrement())
   name        String
   description String
+  imgURL      String
+  slug        String
   products    Product[] @relation(references: [id])
 }
 
