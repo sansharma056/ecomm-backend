@@ -9,7 +9,19 @@ export const get = async (req: Request, res: Response) => {
       userId: req.user?.id,
     },
     include: {
-      items: true,
+      items: {
+        include: {
+          product: {
+            select: {
+              details: {
+                select: {
+                  price: true,
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 
