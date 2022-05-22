@@ -1,6 +1,6 @@
 import { config } from "./config";
 import { Address, PrismaClient, User, UserDetails } from "@prisma/client";
-import { NextFunction, Request, response, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
@@ -128,11 +128,11 @@ export const protect = async (
     payload = await verifyToken(token);
   } catch (e) {
     console.error(e);
-    return response.status(403).json({ message: "Invalid token." });
+    return res.status(403).json({ message: "Invalid token." });
   }
 
   if (payload === null) {
-    return response.status(400).json({ message: "Invalid token." });
+    return res.status(400).json({ message: "Invalid token." });
   }
 
   const prisma = new PrismaClient();
@@ -144,7 +144,7 @@ export const protect = async (
   prisma.$disconnect();
 
   if (user === null) {
-    return response.status(403).json({ message: "Invalid token." });
+    return res.status(403).json({ message: "Invalid token." });
   }
 
   req.user = user;
