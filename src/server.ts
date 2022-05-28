@@ -7,6 +7,7 @@ import vendorRouter from "./resources/vendor/vendor.router";
 import categoryRouter from "./resources/category/category.router";
 import productRouter from "./resources/product/product.router";
 import cartRouter from "./resources/cart/cart.router";
+import orderRouter from "./resources/order/order.router";
 
 export const app = express();
 
@@ -24,6 +25,7 @@ app.use("/product", productRouter);
 app.use("/user", userRouter);
 app.use("/review", reviewRouter);
 app.use("/cart", cartRouter);
+app.use("/order", orderRouter);
 
 export const start = () => {
   const PORT = process.env.PORT ?? 3000;
